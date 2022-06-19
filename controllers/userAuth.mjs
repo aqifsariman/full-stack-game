@@ -44,13 +44,17 @@ export default function initUserController(db) {
 
   const login = async (req, res) => {
     try {
+      const shaObj = new jsSHA('SHA-512', 'TEXT', { encoding: 'UTF8' });
+      shaObj.update(req.body.password);
+      const hashedPassword = shaObj.getHash('HEX');
       const user = await db.User.findOne({
         where: {
           username: req.body.username,
         },
       });
-      console.log({ user });
-      res.send({ user });
+      if (hashedPassword === user.dataValues.password) {
+        res.send({ user });
+      }
     } catch (error) {
       console.log(error);
     }

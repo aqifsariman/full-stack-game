@@ -1,8 +1,31 @@
 /* eslint-disable max-len */
 /* eslint-disable func-names */
 /* eslint-disable no-undef */
-const regButton = document.getElementById('registrationBtn');
-// const loginButton = document.getElementById('loginBtn');
+const submitBtn = document.getElementById('submitBtn');
+const loginBtn = document.getElementById('submitBtn-login');
+const message = document.getElementById('message');
+
+const gameplay = function () {
+  JsLoadingOverlay.show();
+  const gameDiv = document.getElementById('main-cont');
+  message.remove();
+  document.getElementById('headerTitle').innerHTML = 'Choose a category';
+
+  axios
+    .get('/gamestart')
+    .then((response) => {
+      response.data.forEach((categories) => {
+        console.log(categories.categoryName);
+        const list = document.createElement('li');
+        const categoryLink = document.createElement('a');
+        categoryLink.innerHTML = categories.categoryName;
+        categoryLink.setAttribute('href', `/category/${categories.id}`);
+        list.append(categoryLink);
+        gameDiv.appendChild(list);
+      });
+      JsLoadingOverlay.hide();
+    });
+};
 
 const login = function () {
   JsLoadingOverlay.show();
@@ -16,15 +39,20 @@ const login = function () {
   axios
     .post('login', loginData)
     .then((response) => {
-      JsLoadingOverlay.hide();
       if (response.data.errors === undefined) {
+        console.log('Login successful!');
+        JsLoadingOverlay.hide();
         message.innerHTML = 'Login successful!';
         document.getElementById('username').remove();
         document.getElementById('password').remove();
         document.getElementById('usernameLabel').remove();
         document.getElementById('passwordLabel').remove();
-        document.getElementById('loginBtn').remove();
+        document.getElementById('submitBtn-login').remove();
         document.getElementById('headerTitle').innerHTML = 'Welcome To Hangman';
+        if (document.getElementById('authorization')) {
+          document.getElementById('authorization').remove();
+        }
+        gameplay();
       }
     });
 };
@@ -35,7 +63,6 @@ const registration = function () {
   const emailInput = document.getElementById('email').value;
   const passwordInput = document.getElementById('password').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
-  const message = document.getElementById('message');
   message.innerHTML = '';
   const newData = { username: usernameInput, email: emailInput, password: passwordInput };
   console.log(newData);
@@ -59,9 +86,9 @@ const registration = function () {
           document.getElementById('confirmPasswordLabel').remove();
           document.getElementById('headerTitle').innerHTML = 'Login';
           document.getElementById('title').innerHTML = 'Hangman Login';
-          regButton.id = 'loginBtn';
-          regButton.innerHTML = 'Login';
-          regButton.addEventListener('click', login);
+          submitBtn.innerHTML = 'Login';
+          submitBtn.id = 'submitBtn-login';
+          submitBtn.addEventListener('click', login);
         }
         else if (response.data.errors[0].message === 'users.username cannot be null') {
           message.innerHTML = 'Username cannot be empty!';
@@ -78,6 +105,9 @@ const registration = function () {
       });
   }
 };
-
-// loginButton.addEventListener('click', login);
-regButton.addEventListener('click', registration);
+if (!loginBtn) {
+  submitBtn.addEventListener('click', registration);
+}
+else if (!submitBtn) {
+  loginBtn.addEventListener('click', login);
+}

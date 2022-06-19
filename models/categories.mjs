@@ -21,6 +21,5 @@ export default function categoriesModel(sequelize, DataTypes) {
         type: DataTypes.DATE,
       },
     },
-    { underscored: true },
   );
 }

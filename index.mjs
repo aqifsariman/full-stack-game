@@ -1,6 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import methodOverride from 'method-override';
+// import path from 'path';
 
 import bindRoutes from './routes.mjs';
 
@@ -8,6 +9,9 @@ import bindRoutes from './routes.mjs';
 const app = express();
 // Set the Express view engine to expect EJS templates
 app.set('view engine', 'ejs');
+// app.get('/*', (req, res) => {
+//   res.sendFile(path.resolve('views', 'index.html'));
+// });
 // Bind cookie parser middleware to parse cookies in requests
 app.use(cookieParser());
 // Bind Express middleware to parse request bodies for POST requests
@@ -23,4 +27,4 @@ bindRoutes(app);
 
 // Set Express to listen on the given port
 const PORT = process.env.PORT || 3004;
-app.listen(PORT);
+app.listen(PORT, () => console.log('Running on rocket fuel 🚀'));
