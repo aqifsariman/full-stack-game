@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hangman</title>
+</head>
+
+<body>
+  <br>
+  <div class="container">
+    <div id="main-cont">
+      <h1 id="headerTitle">Login Page</h1>
+      <h3 id="message"></h3>
+      <form action="/login" method="post">
+        <label for="username" id="usernameLabel">Username: </label>
+        <input type="text" name="username" id="username">
+        <label for="password" id="passwordLabel">Password: </label>
+        <input type="password" name="password" id="password">
+        <h4 id="authorization">Are you a new user? <a href="/register">Register Here!</a></h4>
+        <button id="submitBtn-login" type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
+  <script src="/script.js"></script>
+</body>
+
+</html>

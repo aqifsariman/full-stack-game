@@ -29,6 +29,5 @@ export default function wordsModel(sequelize, DataTypes) {
         type: DataTypes.DATE,
       },
     },
-    { underscored: true },
   );
 }

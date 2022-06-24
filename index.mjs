@@ -9,9 +9,6 @@ import bindRoutes from './routes.mjs';
 const app = express();
 // Set the Express view engine to expect EJS templates
 app.set('view engine', 'ejs');
-// app.get('/*', (req, res) => {
-//   res.sendFile(path.resolve('views', 'index.html'));
-// });
 // Bind cookie parser middleware to parse cookies in requests
 app.use(cookieParser());
 // Bind Express middleware to parse request bodies for POST requests

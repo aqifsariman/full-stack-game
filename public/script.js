@@ -1,113 +1,166 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable max-len */
 /* eslint-disable func-names */
 /* eslint-disable no-undef */
-const submitBtn = document.getElementById('submitBtn');
-const loginBtn = document.getElementById('submitBtn-login');
-const message = document.getElementById('message');
 
-const gameplay = function () {
-  JsLoadingOverlay.show();
-  const gameDiv = document.getElementById('main-cont');
-  message.remove();
-  document.getElementById('headerTitle').innerHTML = 'Choose a category';
+/*
+ * ========================================================
+ * ========================================================
+ * ========================================================
+ * ========================================================
+ *
+ *                   GLOBAL VARIABLES
+ *
+ * ========================================================
+ * ========================================================
+ * ========================================================
+ */
+const startBtn = document.getElementById('start');
+const alphabetHTML = document.createElement('button');
+const wordHTML = document.createElement('h3');
+wordHTML.classList.add('word');
+const guessesHTML = document.createElement('h5');
+guessesHTML.classList.add('guesses');
+const guessedWord = [];
+let guesses = 0;
+let wrongGuesses = 0;
 
+/*
+ * ========================================================
+ * ========================================================
+ * ========================================================
+ * ========================================================
+ *
+ *                     GAME FUNCTIONS
+ *
+ * ========================================================
+ * ========================================================
+ * ========================================================
+ */
+
+const gameWinningLogic = function (word) {
+  // If no longer includes ' _ ' game won!
+  if (guessedWord.includes(' _ ') === false && wrongGuesses <= 6) {
+    console.log("You've won!");
+  }
+  if (wrongGuesses > 6) {
+    console.log('You lose!');
+    alert(`The correct word is ${word}.`);
+  }
+  console.log(guessedWord);
+};
+
+const startGame = function () {
   axios
-    .get('/gamestart')
+    .get('/begingame')
     .then((response) => {
+      const message = document.createElement('h2');
+      message.id = 'headerTitle';
+      message.classList.add('headerTitle');
+
+      message.innerHTML = 'Choose a category';
+      document.body.appendChild(message);
+      startBtn.remove();
+      const gameDiv = document.createElement('div');
+      gameDiv.id = 'main-cont';
+      document.body.appendChild(gameDiv);
+      const listDiv = document.createElement('div');
+      listDiv.classList.add('list-div');
+      listDiv.id = 'list-div';
       response.data.forEach((categories) => {
-        console.log(categories.categoryName);
         const list = document.createElement('li');
-        const categoryLink = document.createElement('a');
+        const categoryLink = document.createElement('button');
         categoryLink.innerHTML = categories.categoryName;
-        categoryLink.setAttribute('href', `/category/${categories.id}`);
         list.append(categoryLink);
-        gameDiv.appendChild(list);
+        listDiv.appendChild(list);
+        categoryLink.addEventListener('click', () => {
+          axios
+            .get(`/category/${categories.id}`, { index: categories.id })
+            .then((categoryResponse) => {
+              // Lists down all the available categories to play in the game
+              document.getElementById('headerTitle').innerHTML = `${categories.categoryName}`;
+              listDiv.remove();
+
+              // Retrieve random word from db sent from route
+              const { randomWord } = categoryResponse.data;
+              const wordArray = randomWord.split('');
+
+              // Itirate through the word array to check for any spaces
+              // Non-spacing char will show as ' _ '
+              for (const letter of wordArray) {
+                if (letter !== ' ') {
+                  guessedWord.push(' _ ');
+                }
+                if (letter === ' ') {
+                  guessedWord.push(' ');
+                }
+              }
+
+              // Itirate though the guessedWord array
+              // if non-spacing char, html will show ' _'
+              // else will show spacing in innerHTML
+              for (const guessedLetter of guessedWord) {
+                if (guessedLetter !== ' ') {
+                  wordHTML.innerHTML += guessedLetter;
+                }
+                else {
+                  wordHTML.innerHTML += '&nbsp&nbsp&nbsp';
+                }
+              }
+              gameDiv.appendChild(wordHTML);
+
+              console.log(wordArray);
+
+              // creation of alpabet buttons element on page
+              const alphabetButtons = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letter) => `<button class='alpha' value='${letter}'> ${letter} </button>`).join('');
+              alphabetHTML.innerHTML = alphabetButtons;
+              gameDiv.appendChild(alphabetHTML);
+
+              // Itirate through all alphabet buttons to create eventlistener for each button
+              // Each button will run game logic
+              const letters = document.querySelectorAll('.alpha');
+              letters.forEach((alpha) => {
+                alpha.addEventListener('click', () => {
+                  alpha.setAttribute('disabled', 'true');
+                  // Check if the clicked word is correct
+                  // If correct letter guessed, it will update guessedWord array
+                  for (let i = 0; i < wordArray.length; i++) {
+                    // Clear wordHTML to be updated by new guessedWord array
+                    wordHTML.innerHTML = '';
+                    if (wordArray[i] === alpha.value) {
+                      guessedWord[i] = alpha.value;
+                      guesses++;
+                    }
+                    console.log(guessedWord);
+                  }
+                  if (guesses === 0) {
+                    wrongGuesses++;
+                  }
+                  guesses = 0;
+
+                  guessesHTML.innerHTML = `Number of wrong guesses: ${wrongGuesses}`;
+                  gameDiv.appendChild(guessesHTML);
+                  for (const guessedLetter of guessedWord) {
+                    // Update html page with the chars that are correct with all chars that are not spacing char
+                    if (guessedLetter !== ' ') {
+                      wordHTML.innerHTML += guessedLetter;
+                    }
+                    else {
+                      wordHTML.innerHTML += '&nbsp&nbsp&nbsp';
+                    }
+                  }
+                  gameWinningLogic(randomWord);
+                });
+              });
+            });
+        });
+        gameDiv.appendChild(wordHTML);
       });
+      gameDiv.appendChild(listDiv);
+
       JsLoadingOverlay.hide();
     });
 };
 
-const login = function () {
-  JsLoadingOverlay.show();
-  const usernameInput = document.getElementById('username').value;
-  const passwordInput = document.getElementById('password').value;
-  const loginData = {
-    username: usernameInput,
-    password: passwordInput,
-  };
-  console.log(loginData);
-  axios
-    .post('login', loginData)
-    .then((response) => {
-      if (response.data.errors === undefined) {
-        console.log('Login successful!');
-        JsLoadingOverlay.hide();
-        message.innerHTML = 'Login successful!';
-        document.getElementById('username').remove();
-        document.getElementById('password').remove();
-        document.getElementById('usernameLabel').remove();
-        document.getElementById('passwordLabel').remove();
-        document.getElementById('submitBtn-login').remove();
-        document.getElementById('headerTitle').innerHTML = 'Welcome To Hangman';
-        if (document.getElementById('authorization')) {
-          document.getElementById('authorization').remove();
-        }
-        gameplay();
-      }
-    });
-};
-
-const registration = function () {
-  JsLoadingOverlay.show();
-  const usernameInput = document.getElementById('username').value;
-  const emailInput = document.getElementById('email').value;
-  const passwordInput = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
-  message.innerHTML = '';
-  const newData = { username: usernameInput, email: emailInput, password: passwordInput };
-  console.log(newData);
-  if (usernameInput === '' || emailInput === '' || passwordInput === '' || confirmPassword === '') {
-    message.innerHTML = 'Required field cannot be empty!';
-  }
-  else if (passwordInput !== confirmPassword) {
-    message.innerHTML = 'Passwords do not match!';
-  }
-  else if (passwordInput === confirmPassword) {
-    console.log('Password matches!');
-    axios
-      .post('/register', newData)
-      .then((response) => {
-        JsLoadingOverlay.hide();
-        if (response.data.errors === undefined) {
-          message.innerHTML = 'Registration successful!';
-          document.getElementById('email').remove();
-          document.getElementById('confirmPassword').remove();
-          document.getElementById('emailLabel').remove();
-          document.getElementById('confirmPasswordLabel').remove();
-          document.getElementById('headerTitle').innerHTML = 'Login';
-          document.getElementById('title').innerHTML = 'Hangman Login';
-          submitBtn.innerHTML = 'Login';
-          submitBtn.id = 'submitBtn-login';
-          submitBtn.addEventListener('click', login);
-        }
-        else if (response.data.errors[0].message === 'users.username cannot be null') {
-          message.innerHTML = 'Username cannot be empty!';
-        }
-        else if (response.data.errors[0].message === 'username already in use') {
-          message.innerHTML = 'Username already exists!';
-        }
-        else if (response.data.errors[0].message === 'valid email-id required') {
-          message.innerHTML = 'Please enter a valid email address!';
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-};
-if (!loginBtn) {
-  submitBtn.addEventListener('click', registration);
-}
-else if (!submitBtn) {
-  loginBtn.addEventListener('click', login);
-}
+startBtn.addEventListener('click', startGame);

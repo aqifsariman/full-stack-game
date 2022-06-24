@@ -1,4 +1,5 @@
 import sequelizePackage from 'sequelize';
+import { resolve } from 'path';
 import jsSHA from 'jssha';
 
 const { ValidationError, DatabaseError } = sequelizePackage;
@@ -6,10 +7,10 @@ const { ValidationError, DatabaseError } = sequelizePackage;
 /* eslint-disable quotes */
 export default function initUserController(db) {
   const registration = (req, res) => {
-    res.render("register");
+    res.sendFile(resolve('dist', 'register.html'));
   };
   const loginPage = (req, res) => {
-    res.render("login");
+    res.sendFile(resolve('dist', 'login.html'));
   };
   const createUser = async (req, res) => {
     const shaObj = new jsSHA('SHA-512', 'TEXT', { encoding: 'UTF8' });
@@ -52,8 +53,15 @@ export default function initUserController(db) {
           username: req.body.username,
         },
       });
+      if (req.cookies.loggedIn === 'true') {
+        res.redirect('/begingame');
+      }
       if (hashedPassword === user.dataValues.password) {
-        res.send({ user });
+        res.cookie('loggedIn', 'true');
+        res.redirect('/begingame');
+      }
+      else {
+        res.send('no match');
       }
     } catch (error) {
       console.log(error);

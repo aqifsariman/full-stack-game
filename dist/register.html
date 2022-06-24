@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="title">Hangman Registration</title>
+</head>
+
+<body>
+  <br>
+  <div class="container">
+    <div id="main-cont">
+      <h1 id="headerTitle">Registration</h1>
+      <h3 id="message"></h3>
+      <label for="username" id="usernameLabel">Username: </label>
+      <input type="text" name="username" id="username">
+      <label for="email" id="emailLabel">Email Address: </label>
+      <input type="email" name="email" id="email">
+      <label for="password" id="passwordLabel">Password: </label>
+      <input type="password" name="password" id="password">
+      <label for="confirmPassword" id="confirmPasswordLabel">Confirm Password: </label>
+      <input type="password" name="confirmPassword" id="confirmPassword">
+      <h4 id="authorization">Already registered? <a href="/login">Login Here!</a></h4>
+
+      <button id="submitBtn">Create User</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
+</body>
+
+</html>
