@@ -11,3 +11,17 @@ body{
   display: flex;
   justify-content: center;
 }
+
+.alphabets{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.center {
+position: absolute;
+top: 50%;
+margin: auto;
+width: 60%;
+border: 5px solid #FFFF00;
+padding: 10px;
+}

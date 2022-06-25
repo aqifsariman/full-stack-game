@@ -9,6 +9,9 @@ const getRandomIndex = function (size) {
 export default function initGameController(db) {
   const beginGame = async (req, res) => {
     res.sendFile(resolve('dist', 'begin.html'));
+  };
+
+  const categorypick = async (req, res) => {
     try {
       const categories = await db.Category.findAll({
         attributes: ['categoryName', 'id'],
@@ -52,6 +55,7 @@ export default function initGameController(db) {
 
   return {
     beginGame,
+    categorypick,
     initializeGame,
   };
 }

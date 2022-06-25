@@ -10,5 +10,6 @@ export default function bindRoutes(app) {
   app.get('/login', UsersController.loginPage);
   app.post('/login', UsersController.login);
   app.get('/begingame', GamesController.beginGame);
+  app.get('/categories', GamesController.categorypick);
   app.get('/category/:index', GamesController.initializeGame);
 }
