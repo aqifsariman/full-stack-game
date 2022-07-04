@@ -137,17 +137,6 @@ let score = 0;
  * ========================================================
  * ========================================================
  */
-const leaderboard = function () {
-  axios.get('/leaderboard').then((leaderboardResponse) => {
-    console.log(leaderboardResponse.data.leaderboard);
-  });
-};
-
-const updateLeaderboard = function (userScore) {
-  axios.post(`/leaderboard/${score}`).then((leaderboardResponse) => {
-    console.log(leaderboardResponse);
-  });
-};
 
 const initializeGame = function (categoryResponse, categories) {
   wrongGuesses = 0;
