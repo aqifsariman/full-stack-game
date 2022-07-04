@@ -12,4 +12,8 @@ export default function bindRoutes(app) {
   app.get('/begingame', GamesController.beginGame);
   app.get('/categories', GamesController.categorypick);
   app.get('/category/:index', GamesController.initializeGame);
+  app.post('/:index/new-round', GamesController.newRound);
+  app.get('/logout', UsersController.logout);
+  app.get('/profile', UsersController.profile);
+  app.get('/stats', GamesController.accessStats);
 }

@@ -10,28 +10,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Anek+Latin:wght@100&family=IBM+Plex+Serif:wght@200&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <title>Wordplay Login</title>
+  <title>Wordplay</title>
 </head>
 
 <body>
-  <br>
   <div class="container">
-    <div id="main-cont">
-      <h1 id="headerTitle">Login Page</h1>
-      <h3 id="message"></h3>
-      <form action="/login" method="post">
-        <label for="username" id="usernameLabel">Username: </label>
-        <input type="text" name="username" id="username">
-        <label for="password" id="passwordLabel">Password: </label>
-        <input type="password" name="password" id="password">
-        <h4 id="authorization">Are you a new user? <a href="/">Register Here!</a></h4>
-        <button id="submitBtn-login" type="submit" class="submit">Login</button>
-      </form>
-    </div>
+    <canvas id="myChart" style="position: relative; height:40vh; width:80vw"></canvas>
   </div>
-
+  <nav class="navbar">
+    <ul class="navLinks">
+      <li id="user"><a href="/profile">User</a> </li>
+      <li id="wordplay"> <a href="/begingame">Wordplay</a></li>
+      <li id="leaderboard"><a href="/logout">Logout</a> </li>
+    </ul>
+  </nav>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
   <script src="/script.js"></script>
 </body>
 

@@ -1,3 +1,6 @@
+/* eslint-disable import/no-dynamic-require */
+/* eslint-disable no-unused-vars */
+/* eslint-disable consistent-return */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable max-len */
@@ -16,21 +19,112 @@
  * ========================================================
  * ========================================================
  */
+
+// MESSAGE HEADER
+const message = document.createElement('h1');
+message.id = 'headerTitle';
+message.classList.add('headerTitle');
+
+// START BUTTON
 const startBtn = document.getElementById('start');
+if (startBtn) {
+  startBtn.classList.add('start-button');
+}
+
+// GAME DIV
 const gameDiv = document.createElement('div');
 gameDiv.id = 'main-cont';
+gameDiv.classList.add('main-cont');
+
+// ALPHABETS DIV
 const alphabetHTML = document.createElement('div');
 alphabetHTML.classList.add('alphabets');
+alphabetHTML.classList.add('child-element');
+
+// WORD ELEMENT
 const wordHTML = document.createElement('h3');
+wordHTML.id = 'word';
 wordHTML.classList.add('word');
+wordHTML.classList.add('child-element');
+
+// GUESSES ELEMENT
 const guessesHTML = document.createElement('h5');
 guessesHTML.classList.add('guesses');
-const guessedWord = [];
+guessesHTML.classList.add('child-element');
+
+// NEW ROUND BUTTON
+const newRoundButton = document.createElement('button');
+newRoundButton.id = 'newround';
+newRoundButton.innerHTML = 'NEXT WORD';
+newRoundButton.classList.add('game-buttons');
+
+// SELECTING NEW CATEGORY
+const newCategoryButton = document.createElement('button');
+newCategoryButton.id = 'newcategory';
+newCategoryButton.innerHTML = 'ANOTHER CATEGORY';
+newCategoryButton.classList.add('game-buttons');
+
+// GAME BUTTONS DIV
+const gamesButtonsDiv = document.createElement('div');
+gamesButtonsDiv.id = 'gamesButtonDiv';
+gamesButtonsDiv.classList.add('gamesButtonDiv');
+gamesButtonsDiv.classList.add('child-element');
+
+// HANGMAN IMAGE
+const crosses = document.createElement('h1');
+
+// WIN/LOSE MESSAGE
+const popUpBox = document.createElement('div');
+popUpBox.classList.add('pop-up');
+const popUpMessage = document.createElement('h3');
+popUpMessage.id = 'pop-up-message';
+
+// CHART CREATION
+const ctx = document.getElementById('myChart');
+if (ctx) {
+  axios.get('/stats').then((response) => {
+    const { gamesPlayed, wordsCorrect, wordsWrong } = response.data.stats[0];
+    const winPercentage = wordsCorrect / gamesPlayed;
+    const myChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: ['Games Played', 'Words Correct', 'Words Wrong', 'Win Percentage'],
+        datasets: [
+          {
+            label: 'Wordplay',
+            data: [gamesPlayed, wordsCorrect, wordsWrong, winPercentage],
+            backgroundColor: [
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 99, 132, 0.2)',
+            ],
+            borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+            ],
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  });
+}
+
+let guessedWord = [];
 let guesses = 0;
 let wrongGuesses = 0;
-let currentCategory;
+let currentCategoryIndex;
+let currentUser;
+let score = 0;
 
-// TODO create new route for new game of the same category
 /*
  * ========================================================
  * ========================================================
@@ -43,9 +137,23 @@ let currentCategory;
  * ========================================================
  * ========================================================
  */
+const leaderboard = function () {
+  axios.get('/leaderboard').then((leaderboardResponse) => {
+    console.log(leaderboardResponse.data.leaderboard);
+  });
+};
+
+const updateLeaderboard = function (userScore) {
+  axios.post(`/leaderboard/${score}`).then((leaderboardResponse) => {
+    console.log(leaderboardResponse);
+  });
+};
 
 const initializeGame = function (categoryResponse, categories) {
-  console.log(categoryResponse);
+  wrongGuesses = 0;
+  wordHTML.innerHTML = '';
+  crosses.innerHTML = '';
+  guessedWord = [];
   if (categories) {
     currentCategory = categories.id;
     document.getElementById('headerTitle').innerHTML = `${categories.categoryName}`;
@@ -73,8 +181,7 @@ const initializeGame = function (categoryResponse, categories) {
   for (const guessedLetter of guessedWord) {
     if (guessedLetter !== ' ') {
       wordHTML.innerHTML += guessedLetter;
-    }
-    else {
+    } else {
       wordHTML.innerHTML += '&nbsp&nbsp&nbsp';
     }
   }
@@ -85,26 +192,24 @@ const initializeGame = function (categoryResponse, categories) {
 
 const gameWinningLogic = function (word) {
   // If no longer includes ' _ ' game won!
-  if (guessedWord.includes(' _ ') === false && wrongGuesses <= 6) {
-    alert("You've won!");
-
+  if (guessedWord.includes(' _ ') === false && wrongGuesses <= 5) {
+    crosses.innerHTML = '';
     return true;
   }
-  if (wrongGuesses > 6) {
+  if (wrongGuesses > 5) {
     console.log('You lose!');
-    newGame = true;
-    alert(`The correct word is ${word}.`);
+    crosses.innerHTML = '';
+    wordHTML.innerHTML = word;
+    return false;
   }
-  return false;
 };
 
 const generateButtons = function (randomWord, wordArray) {
-  const newRoundButton = document.createElement('button');
-  newRoundButton.id = 'newround';
-  newRoundButton.innerHTML = 'START NEW ROUND';
-  // TODO Alphabet Function
   // creation of alpabet buttons element on page
-  const alphabetButtons = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letter) => `<button class='alpha' value='${letter}'> ${letter} </button>`).join('');
+  const alphabetButtons = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    .split('')
+    .map((letter) => `<button class='alpha' value='${letter}'> ${letter} </button>`)
+    .join('');
   alphabetHTML.innerHTML = alphabetButtons;
   gameDiv.appendChild(alphabetHTML);
 
@@ -121,86 +226,138 @@ const generateButtons = function (randomWord, wordArray) {
         wordHTML.innerHTML = '';
         if (wordArray[i] === alpha.value) {
           guessedWord[i] = alpha.value;
+          crosses.innerHTML += '🟩';
           guesses++;
         }
       }
       if (guesses === 0) {
+        crosses.innerHTML += '🟥';
         wrongGuesses++;
       }
-      guesses = 0;
 
-      guessesHTML.innerHTML = `Number of wrong guesses: ${wrongGuesses}`;
-      gameDiv.appendChild(guessesHTML);
+      guesses = 0;
+      const parentDiv = wordHTML.parentNode;
+      parentDiv.insertBefore(crosses, wordHTML);
       for (const guessedLetter of guessedWord) {
         // Update html page with the chars that are correct with all chars that are not spacing char
         if (guessedLetter !== ' ') {
           wordHTML.innerHTML += guessedLetter;
-        }
-        else {
+        } else {
           wordHTML.innerHTML += '&nbsp&nbsp&nbsp';
         }
       }
+
       const winState = gameWinningLogic(randomWord);
       if (winState === true) {
-        axios
-          .get(`/category/${currentCategory}}`)
-          .then((categoryResponse) => {
-            const { randomWord: randomWord2, wordArray: wordArray2 } = initializeGame(categoryResponse, categories);
-            listDiv.remove();
-            generateButtons(randomWord2, wordArray2);
-          });
+        popUpMessage.innerHTML = 'Congratulations you got it right!';
+        popUpBox.classList.add('correct');
+        popUpBox.appendChild(popUpMessage);
+        gameDiv.appendChild(popUpBox);
+        setTimeout(() => {
+          popUpBox.classList.remove('correct');
+          popUpBox.remove();
+        }, 2000);
+        setTimeout(() => {
+          axios
+            .post(`/${currentCategoryIndex}/new-round`, { winState })
+            .then((categoryResponse) => {
+              score += 500;
+              updateLeaderboard(score);
+              guessesHTML.innerHTML = '';
+              const { randomWord: randomWord2, wordArray: wordArray2 } = initializeGame(
+                categoryResponse,
+                null,
+              );
+              generateButtons(randomWord2, wordArray2);
+            });
+        }, 3000);
+      }
+      if (winState === false) {
+        popUpMessage.innerHTML = 'Your answer was wrong!';
+        popUpBox.classList.add('wrong');
+        popUpBox.appendChild(popUpMessage);
+        gameDiv.appendChild(popUpBox);
+        setTimeout(() => {
+          popUpBox.classList.remove('wrong');
+          popUpBox.remove();
+        }, 2000);
+        setTimeout(() => {
+          axios
+            .post(`/${currentCategoryIndex}/new-round`, { winState })
+            .then((categoryResponse) => {
+              guessesHTML.innerHTML = '';
+              const { randomWord: randomWord2, wordArray: wordArray2 } = initializeGame(
+                categoryResponse,
+                null,
+              );
+              generateButtons(randomWord2, wordArray2);
+            });
+        }, 3000);
       }
     });
   });
-  gameDiv.appendChild(newRoundButton);
   newRoundButton.addEventListener('click', () => {
-    axios
-      .get(`/category/${currentCategory}}`)
-      .then((categoryResponse) => {
-        const letters = document.querySelectorAll('.alpha');
-
-        const { randomWord: randomWord2, wordArray: wordArray2 } = initializeGame(categoryResponse, categories);
-        listDiv.remove();
-        generateButtons(randomWord2, wordArray2);
-      }); });
+    console.log('clicked');
+    axios.post(`/${currentCategoryIndex}/new-round`).then((categoryResponse) => {
+      console.log(categoryResponse);
+      const { randomWord: randomWord2, wordArray: wordArray2 } = initializeGame(
+        categoryResponse,
+        null,
+      );
+      generateButtons(randomWord2, wordArray2);
+    });
+  });
+  gamesButtonsDiv.appendChild(newRoundButton);
+  gamesButtonsDiv.appendChild(newCategoryButton);
+  gameDiv.appendChild(gamesButtonsDiv);
 };
 
 const startGame = function () {
-  axios
-    .get('/categories')
-    .then((response) => {
-      const message = document.createElement('h2');
-      message.id = 'headerTitle';
-      message.classList.add('headerTitle');
-      message.innerHTML = 'Choose a category';
-      document.body.appendChild(message);
-      startBtn.remove();
+  axios.get('/categories').then((response) => {
+    message.innerHTML = 'Choose a category';
+    gameDiv.prepend(message);
+    startBtn.remove();
 
-      document.body.appendChild(gameDiv);
-      const listDiv = document.createElement('div');
-      listDiv.classList.add('list-div');
-      listDiv.id = 'list-div';
-      response.data.forEach((categories) => {
-        const list = document.createElement('li');
-        const categoryLink = document.createElement('button');
-        categoryLink.innerHTML = categories.categoryName;
-        list.append(categoryLink);
-        listDiv.appendChild(list);
-        categoryLink.addEventListener('click', () => {
-          axios
-            .get(`/category/${categories.id}`, { index: categories.id })
-            .then((categoryResponse) => {
-              const { randomWord, wordArray } = initializeGame(categoryResponse, categories);
-              listDiv.remove();
-              generateButtons(randomWord, wordArray);
-            });
-        });
-        gameDiv.appendChild(wordHTML);
+    document.body.appendChild(gameDiv);
+    const listDiv = document.createElement('div');
+    listDiv.classList.add('list-div');
+    listDiv.id = 'list-div';
+    response.data.forEach((categories) => {
+      const list = document.createElement('ul');
+      const categoryLink = document.createElement('button');
+      categoryLink.classList.add('list-button');
+      categoryLink.innerHTML = categories.categoryName;
+      list.append(categoryLink);
+      listDiv.appendChild(list);
+      categoryLink.addEventListener('click', () => {
+        currentCategoryName = categories.categoryName;
+        currentCategoryIndex = categories.id;
+        axios
+          .get(`/category/${currentCategoryIndex}`, { index: currentCategoryIndex })
+          .then((categoryResponse) => {
+            console.log(categoryResponse);
+            const { randomWord, wordArray } = initializeGame(categoryResponse, categories);
+            listDiv.remove();
+            generateButtons(randomWord, wordArray);
+          });
       });
-      gameDiv.appendChild(listDiv);
-
-      JsLoadingOverlay.hide();
+      gameDiv.appendChild(wordHTML);
     });
+    gameDiv.appendChild(listDiv);
+
+    JsLoadingOverlay.hide();
+  });
+};
+
+const newCategory = function () {
+  const headerTitle = document.getElementById('headerTitle');
+  headerTitle.remove();
+  alphabetHTML.remove();
+  gamesButtonsDiv.remove();
+  crosses.remove();
+  wordHTML.innerHTML = '';
+  startGame();
 };
 
 startBtn.addEventListener('click', startGame);
+newCategoryButton.addEventListener('click', newCategory);

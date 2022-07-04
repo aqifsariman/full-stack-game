@@ -10,6 +10,9 @@ export default function initUserController(db) {
     res.sendFile(resolve('dist', 'register.html'));
   };
   const loginPage = (req, res) => {
+    if (req.cookies.loggedIn === 'true') {
+      res.redirect('/begingame');
+    }
     res.sendFile(resolve('dist', 'login.html'));
   };
   const createUser = async (req, res) => {
@@ -24,16 +27,19 @@ export default function initUserController(db) {
         created_at: new Date(),
         updated_at: new Date(),
       });
-      res.send({ user });
+      res.cookie('loggedIn', true);
+      res.cookie('username', `${user.username}`);
+      res.cookie('id', `${user.id}`);
+      res.redirect('/login');
     } catch (error) {
       if (error instanceof ValidationError) {
-        console.error("This is a validation error!");
+        console.error('This is a validation error!');
         console.error(error);
-        console.error("The following is the first error message:");
+        console.error('The following is the first error message:');
         console.error(error.errors[0].message);
         res.send(error);
       } else if (error instanceof DatabaseError) {
-        console.error("This is a database error!");
+        console.error('This is a database error!');
         console.error(error);
         res.send(error);
       } else {
@@ -55,22 +61,34 @@ export default function initUserController(db) {
       });
       if (req.cookies.loggedIn === 'true') {
         res.redirect('/begingame');
-      }
-      if (hashedPassword === user.dataValues.password) {
+      } else if (hashedPassword === user.dataValues.password) {
         res.cookie('loggedIn', 'true');
+        res.cookie('username', `${req.body.username}`);
+        res.cookie('id', `${user.id}`);
         res.redirect('/begingame');
-      }
-      else {
+      } else {
         res.send('no match');
       }
     } catch (error) {
       console.log(error);
     }
   };
+
+  const logout = async (req, res) => {
+    res.clearCookie('loggedIn');
+    res.clearCookie('username');
+    res.redirect('/login');
+  };
+
+  const profile = (req, res) => {
+    res.sendFile(resolve('dist', 'user.html'));
+  };
   return {
     registration,
     createUser,
     loginPage,
     login,
+    logout,
+    profile,
   };
 }
