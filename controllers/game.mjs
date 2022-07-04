@@ -141,7 +141,12 @@ export default function initGameController(db) {
           userId: id,
         },
       });
-      res.send({ stats });
+      const username = await db.User.findAll({
+        where: {
+          id,
+        },
+      });
+      res.send({ stats, username });
     } catch (error) {
       console.log(error);
     }

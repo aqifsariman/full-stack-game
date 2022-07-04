@@ -83,7 +83,9 @@ popUpMessage.id = 'pop-up-message';
 const ctx = document.getElementById('myChart');
 if (ctx) {
   axios.get('/stats').then((response) => {
+    console.log(response);
     const { gamesPlayed, wordsCorrect, wordsWrong } = response.data.stats[0];
+    const user = response.data.username[0].username;
     const winPercentage = wordsCorrect / gamesPlayed;
     const myChart = new Chart(ctx, {
       type: 'radar',
@@ -111,6 +113,12 @@ if (ctx) {
         scales: {
           y: {
             beginAtZero: true,
+          },
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: `Hello ${user.charAt(0).toUpperCase() + user.slice(1)}!`,
           },
         },
       },
