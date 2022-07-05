@@ -83,10 +83,9 @@ popUpMessage.id = 'pop-up-message';
 const ctx = document.getElementById('myChart');
 if (ctx) {
   axios.get('/stats').then((response) => {
-    console.log(response);
     const { gamesPlayed, wordsCorrect, wordsWrong } = response.data.stats[0];
     const user = response.data.username[0].username;
-    const winPercentage = wordsCorrect / gamesPlayed;
+    const winPercentage = (wordsCorrect / gamesPlayed) * 100;
     const myChart = new Chart(ctx, {
       type: 'radar',
       data: {
@@ -131,7 +130,6 @@ let guesses = 0;
 let wrongGuesses = 0;
 let currentCategoryIndex;
 let currentUser;
-let score = 0;
 
 /*
  * ========================================================
@@ -183,7 +181,6 @@ const initializeGame = function (categoryResponse, categories) {
     }
   }
   gameDiv.appendChild(wordHTML);
-  console.log(wordArray);
   return { randomWord, wordArray };
 };
 
@@ -194,7 +191,6 @@ const gameWinningLogic = function (word) {
     return true;
   }
   if (wrongGuesses > 5) {
-    console.log('You lose!');
     crosses.innerHTML = '';
     wordHTML.innerHTML = word;
     return false;
@@ -258,8 +254,6 @@ const generateButtons = function (randomWord, wordArray) {
           axios
             .post(`/${currentCategoryIndex}/new-round`, { winState })
             .then((categoryResponse) => {
-              score += 500;
-              updateLeaderboard(score);
               guessesHTML.innerHTML = '';
               const { randomWord: randomWord2, wordArray: wordArray2 } = initializeGame(
                 categoryResponse,
@@ -294,9 +288,7 @@ const generateButtons = function (randomWord, wordArray) {
     });
   });
   newRoundButton.addEventListener('click', () => {
-    console.log('clicked');
     axios.post(`/${currentCategoryIndex}/new-round`).then((categoryResponse) => {
-      console.log(categoryResponse);
       const { randomWord: randomWord2, wordArray: wordArray2 } = initializeGame(
         categoryResponse,
         null,
@@ -332,7 +324,6 @@ const startGame = function () {
         axios
           .get(`/category/${currentCategoryIndex}`, { index: currentCategoryIndex })
           .then((categoryResponse) => {
-            console.log(categoryResponse);
             const { randomWord, wordArray } = initializeGame(categoryResponse, categories);
             listDiv.remove();
             generateButtons(randomWord, wordArray);
