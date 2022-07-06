@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config webpack.prod.js",
-    "start": "node index.mjs",
-    "watch": "webpack --watch --config webpack.dev.js"
+    "start": "node index.mjs"
   },
   "repository": {
     "type": "git",
@@ -24,29 +22,13 @@
     "chart.js": "^3.8.0",
     "cookie-parser": "^1.4.6",
     "core-js": "^3.23.3",
-    "ejs": "^3.1.8",
     "eslint": "^8.17.0",
     "express": "^4.18.1",
-    "html-webpack-plugin": "^5.5.0",
     "jssha": "^3.2.0",
     "method-override": "^3.0.0",
     "nodemon": "^2.0.16",
     "path": "^0.12.7",
     "pg": "^8.7.3",
-    "sequelize": "^6.20.1",
-    "socket.io": "^4.5.1",
-    "socket.io-client": "^4.5.1",
-    "sweetalert": "^2.1.2",
-    "webpack-merge": "^5.8.0"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.18.6",
-    "@babel/preset-env": "^7.18.6",
-    "babel-loader": "^8.2.5",
-    "css-loader": "^6.7.1",
-    "mini-css-extract-plugin": "^2.6.1",
-    "sequelize-cli": "^6.4.1",
-    "style-loader": "^3.3.1",
-    "webpack-cli": "^4.9.2"
+    "sequelize": "^6.20.1"
   }
 }
